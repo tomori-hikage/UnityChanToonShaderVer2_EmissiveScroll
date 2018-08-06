@@ -1,4 +1,4 @@
-﻿//UCTS_DoubleShadeWithFeather.cginc
+﻿//UCTS_DoubleShadeWithFeather_EmissiveScroll.cginc
 //v.2.0.4
 //#pragma multi_compile _IS_CLIPPING_OFF _IS_CLIPPING_MODE  _IS_CLIPPING_TRANSMODE
 //#pragma multi_compile _IS_PASS_FWDBASE _IS_PASS_FWDDELTA

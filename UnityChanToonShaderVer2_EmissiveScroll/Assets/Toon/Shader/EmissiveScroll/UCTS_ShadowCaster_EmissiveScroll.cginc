@@ -1,4 +1,4 @@
-﻿//UCTS_ShadowCaster.cginc
+﻿//UCTS_ShadowCaster_EmissiveScroll.cginc
 //v.2.0.4
 //#pragma multi_compile _IS_CLIPPING_OFF _IS_CLIPPING_MODE  _IS_CLIPPING_TRANSMODE
 //

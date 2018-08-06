@@ -1,9 +1,9 @@
-﻿//UCTS_ShadingGradeMap.cginc
+﻿//UCTS_ShadingGradeMap_EmissiveScroll.cginc
 //v.2.0.4
 //#pragma multi_compile _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
 //#pragma multi_compile _IS_ANGELRING_OFF _IS_ANGELRING_ON
 //#pragma multi_compile _IS_PASS_FWDBASE _IS_PASS_FWDDELTA
-//#include "UCTS_ShadingGradeMap.cginc"
+//#include "UCTS_ShadingGradeMap_EmissiveScroll.cginc"
 
             uniform sampler2D _BaseMap; uniform float4 _BaseMap_ST;
             uniform float4 _BaseColor;
@@ -65,6 +65,13 @@
             uniform float _TweakMatCapOnShadow;
             uniform sampler2D _Emissive_Tex; uniform float4 _Emissive_Tex_ST;
             uniform float4 _Emissive_Color;
+            uniform float _EmissiveBlink_Base;
+            uniform float _EmissiveBlink_Amplitude;
+            uniform float _EmissiveBlink_Velocity;
+            uniform float4 _EmissiveScroll_Direction;
+            uniform float _EmissiveScroll_Width;
+            uniform float _EmissiveScroll_Velocity;
+            uniform float _EmissiveScroll_Interval;
             uniform float _Unlit_Intensity;
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
@@ -80,7 +87,7 @@
             fixed3 DecodeLightProbe( fixed3 N ){
             return ShadeSH9(float4(N,1));
             }
-            
+
             uniform float _GI_Intensity;
 //v.2.0.4
 #ifdef _IS_ANGELRING_OFF
@@ -173,7 +180,7 @@
                 float3 defaultLightDirection = float3(0.0,0.1,0.1);
                 float3 defaultLightColor = float3(_Unlit_Intensity,_Unlit_Intensity,_Unlit_Intensity);
                 float3 lightDirection = normalize(lerp(defaultLightDirection,_WorldSpaceLightPos0.xyz,any(_WorldSpaceLightPos0.xyz)));
-                float3 lightColor = lerp(defaultLightColor,_LightColor0.rgb,any(_LightColor0.rgb));                
+                float3 lightColor = lerp(defaultLightColor,_LightColor0.rgb,any(_LightColor0.rgb));
 #elif _IS_PASS_FWDDELTA
                 float3 lightDirection = normalize(lerp(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz - i.posWorld.xyz,_WorldSpaceLightPos0.w));
                 float3 lightColor = _LightColor0.rgb*0.5;
@@ -225,10 +232,20 @@
                 float4 _MatCap_Sampler_var = tex2D(_MatCap_Sampler,TRANSFORM_TEX(_Rot_MatCapUV_var, _MatCap_Sampler));
                 float3 _Is_LightColor_MatCap_var = lerp( (_MatCap_Sampler_var.rgb*_MatCapColor.rgb), ((_MatCap_Sampler_var.rgb*_MatCapColor.rgb)*Set_LightColor), _Is_LightColor_MatCap );
                 float3 Set_MatCap = lerp( _Is_LightColor_MatCap_var, (_Is_LightColor_MatCap_var*((1.0 - Set_FinalShadowMask)+(Set_FinalShadowMask*_TweakMatCapOnShadow))), _Is_UseTweakMatCapOnShadow );
-                float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex));
+
+                float phase = dot(i.posWorld.xyz, _EmissiveScroll_Direction);
+                phase -= _Time.y * _EmissiveScroll_Velocity;
+                phase /= _EmissiveScroll_Interval;
+                phase -= floor(phase);
+                float width = _EmissiveScroll_Width;
+                phase = (pow(phase, width) + pow(1 - phase, width * 4)) * 0.5;
+
+                float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex)) * phase;
+
+                float emissiveBlink = sin(_Time.y * _EmissiveBlink_Velocity) * _EmissiveBlink_Amplitude + _EmissiveBlink_Base;
 //v.2.0.4
 #ifdef _IS_ANGELRING_OFF
-                float3 Set_FinalCompOut = saturate((1.0-(1.0-(saturate(lerp( _RimLight_var, lerp( (_RimLight_var*Set_MatCap), (_RimLight_var+Set_MatCap), _Is_BlendAddToMatCap ), _MatCap ))+(_Emissive_Tex_var.rgb*_Emissive_Color.rgb)))*(1.0-(DecodeLightProbe( normalDirection )*_GI_Intensity)))); // Final Composition
+                float3 Set_FinalCompOut = saturate((1.0-(1.0-(saturate(lerp( _RimLight_var, lerp( (_RimLight_var*Set_MatCap), (_RimLight_var+Set_MatCap), _Is_BlendAddToMatCap ), _MatCap ))+(_Emissive_Tex_var.rgb*_Emissive_Color.rgb*emissiveBlink)))*(1.0-(DecodeLightProbe( normalDirection )*_GI_Intensity)))); // Final Composition
 #elif _IS_ANGELRING_ON
                 float3 _MatCap_var = lerp( _RimLight_var, lerp( (_RimLight_var*Set_MatCap), (_RimLight_var+Set_MatCap), _Is_BlendAddToMatCap ), _MatCap );
                 float3 _AR_OffsetU_var = lerp(mul( UNITY_MATRIX_V, float4(i.normalDir,0) ).xyz.rgb,float3(0,0,1),_AR_OffsetU);
@@ -238,7 +255,7 @@
                 float3 Set_AngelRing = _Is_LightColor_AR_var;
                 float Set_ARtexAlpha = _AngelRing_Sampler_var.a;
                 float3 Set_AngelRingWithAlpha = (_Is_LightColor_AR_var*_AngelRing_Sampler_var.a);
-                float3 Set_FinalCompOut = saturate((1.0-(1.0-(saturate(lerp( _MatCap_var, lerp( (_MatCap_var+Set_AngelRing), ((_MatCap_var*(1.0 - Set_ARtexAlpha))+Set_AngelRingWithAlpha), _ARSampler_AlphaOn ), _AngelRing ))+(_Emissive_Tex_var.rgb*_Emissive_Color.rgb)))*(1.0-(DecodeLightProbe( normalDirection )*_GI_Intensity)))); // Final Composition
+                float3 Set_FinalCompOut = saturate((1.0-(1.0-(saturate(lerp( _MatCap_var, lerp( (_MatCap_var+Set_AngelRing), ((_MatCap_var*(1.0 - Set_ARtexAlpha))+Set_AngelRingWithAlpha), _ARSampler_AlphaOn ), _AngelRing ))+(_Emissive_Tex_var.rgb*_Emissive_Color.rgb*emissiveBlink)))*(1.0-(DecodeLightProbe( normalDirection )*_GI_Intensity)))); // Final Composition
 #endif
 
 

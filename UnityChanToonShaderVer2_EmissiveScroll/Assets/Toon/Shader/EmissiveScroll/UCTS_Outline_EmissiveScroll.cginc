@@ -1,4 +1,4 @@
-﻿// UCTS_Outline.cginc
+﻿// UCTS_Outline_EmissiveScroll.cginc
 // 2017/03/08 N.Kobayashi (Unity Technologies Japan)
 // カメラオフセット付きアウトライン（BaseColorライトカラー反映修正版）
 // 2017/06/05 PS4対応版
