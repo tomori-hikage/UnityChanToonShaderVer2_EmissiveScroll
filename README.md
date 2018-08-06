@@ -1,0 +1,1 @@
+# UnityChanToonShaderVer2_EmissiveScroll
