@@ -69,8 +69,8 @@
         _Emissive_Tex ("Emissive_Tex", 2D) = "white" {}
         [HDR]_Emissive_Color ("Emissive_Color", Color) = (0,0,0,1)
 //EmissiveBlink
-        _EmissiveBlink_Base ("EmissiveBlink_Base", Float ) = 2
-        _EmissiveBlink_Amplitude ("EmissiveBlink_Amplitude", Float ) = 1
+        _EmissiveBlink_Min ("EmissiveBlink_Min", Float ) = 1
+        _EmissiveBlink_Max ("EmissiveBlink_Max", Float ) = 3
         _EmissiveBlink_Velocity ("EmissiveBlink_Velocity", Float ) = 4
 //EmissiveScroll
         _EmissiveScroll_Direction ("EmissiveScroll_Direction", Vector) = (0, -10, 0, 0)

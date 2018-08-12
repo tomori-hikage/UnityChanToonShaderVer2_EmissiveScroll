@@ -64,8 +64,8 @@
             uniform float _TweakMatCapOnShadow;
             uniform sampler2D _Emissive_Tex; uniform float4 _Emissive_Tex_ST;
             uniform float4 _Emissive_Color;
-            uniform float _EmissiveBlink_Base;
-            uniform float _EmissiveBlink_Amplitude;
+            uniform float _EmissiveBlink_Min;
+            uniform float _EmissiveBlink_Max;
             uniform float _EmissiveBlink_Velocity;
             uniform float4 _EmissiveScroll_Direction;
             uniform float _EmissiveScroll_Width;
@@ -209,7 +209,8 @@
                 float3 _Is_LightColor_MatCap_var = lerp( (_MatCap_Sampler_var.rgb*_MatCapColor.rgb), ((_MatCap_Sampler_var.rgb*_MatCapColor.rgb)*Set_LightColor), _Is_LightColor_MatCap );
                 float3 Set_MatCap = lerp( _Is_LightColor_MatCap_var, (_Is_LightColor_MatCap_var*((1.0 - Set_FinalShadowSample)+(Set_FinalShadowSample*_TweakMatCapOnShadow))), _Is_UseTweakMatCapOnShadow );
 
-                float phase = dot(i.posWorld.xyz, _EmissiveScroll_Direction);
+                float4 objectPos = mul(unity_WorldToObject, i.posWorld.xyz);
+                float phase = dot(objectPos, _EmissiveScroll_Direction);
                 phase -= _Time.y * _EmissiveScroll_Velocity;
                 phase /= _EmissiveScroll_Interval;
                 phase -= floor(phase);
@@ -217,7 +218,9 @@
                 phase = (pow(phase, width) + pow(1 - phase, width * 4)) * 0.5;
                 float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex)) * phase;
 
-                float emissiveBlink = sin(_Time.y * _EmissiveBlink_Velocity) * _EmissiveBlink_Amplitude + _EmissiveBlink_Base;
+                float amplitude = (_EmissiveBlink_Max - _EmissiveBlink_Min) * 0.5f;
+                float base = _EmissiveBlink_Min + amplitude;
+                float emissiveBlink = sin(_Time.y * _EmissiveBlink_Velocity) * amplitude + base;
 
                 float3 finalColor = saturate((1.0-(1.0-(saturate(lerp( _RimLight_var, lerp( (_RimLight_var*Set_MatCap), (_RimLight_var+Set_MatCap), _Is_BlendAddToMatCap ), _MatCap ))+(_Emissive_Tex_var.rgb*_Emissive_Color.rgb*emissiveBlink)))*(1.0-(DecodeLightProbe( normalDirection )*_GI_Intensity))));
 
