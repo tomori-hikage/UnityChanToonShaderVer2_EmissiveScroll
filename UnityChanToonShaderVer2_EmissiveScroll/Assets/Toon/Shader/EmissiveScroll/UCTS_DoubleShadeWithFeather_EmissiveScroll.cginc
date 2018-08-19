@@ -108,8 +108,9 @@
                 float3 normalDir : TEXCOORD2;
                 float3 tangentDir : TEXCOORD3;
                 float3 bitangentDir : TEXCOORD4;
-                LIGHTING_COORDS(5,6)
-                UNITY_FOG_COORDS(7)
+                float phase : TEXCOORD5;
+                LIGHTING_COORDS(6,7)
+                UNITY_FOG_COORDS(8)
             };
             VertexOutput vert (VertexInput v) {
                 VertexOutput o = (VertexOutput)0;
@@ -122,6 +123,14 @@
                 o.pos = UnityObjectToClipPos( v.vertex );
                 UNITY_TRANSFER_FOG(o,o.pos);
                 TRANSFER_VERTEX_TO_FRAGMENT(o)
+
+                o.phase = dot(v.vertex, _EmissiveScroll_Direction);
+                o.phase -= _Time.y * _EmissiveScroll_Velocity;
+                o.phase /= _EmissiveScroll_Interval;
+                o.phase -= floor(o.phase);
+                float width = _EmissiveScroll_Width;
+                o.phase = (pow(o.phase, width) + pow(1 - o.phase, width * 4)) * 0.5;
+
                 return o;
             }
             float4 frag(VertexOutput i) : SV_TARGET {
@@ -209,14 +218,7 @@
                 float3 _Is_LightColor_MatCap_var = lerp( (_MatCap_Sampler_var.rgb*_MatCapColor.rgb), ((_MatCap_Sampler_var.rgb*_MatCapColor.rgb)*Set_LightColor), _Is_LightColor_MatCap );
                 float3 Set_MatCap = lerp( _Is_LightColor_MatCap_var, (_Is_LightColor_MatCap_var*((1.0 - Set_FinalShadowSample)+(Set_FinalShadowSample*_TweakMatCapOnShadow))), _Is_UseTweakMatCapOnShadow );
 
-                float4 objectPos = mul(unity_WorldToObject, i.posWorld.xyz);
-                float phase = dot(objectPos, _EmissiveScroll_Direction);
-                phase -= _Time.y * _EmissiveScroll_Velocity;
-                phase /= _EmissiveScroll_Interval;
-                phase -= floor(phase);
-                float width = _EmissiveScroll_Width;
-                phase = (pow(phase, width) + pow(1 - phase, width * 4)) * 0.5;
-                float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex)) * phase;
+                float4 _Emissive_Tex_var = tex2D(_Emissive_Tex,TRANSFORM_TEX(Set_UV0, _Emissive_Tex)) * i.phase;
 
                 float amplitude = (_EmissiveBlink_Max - _EmissiveBlink_Min) * 0.5f;
                 float base = _EmissiveBlink_Min + amplitude;
