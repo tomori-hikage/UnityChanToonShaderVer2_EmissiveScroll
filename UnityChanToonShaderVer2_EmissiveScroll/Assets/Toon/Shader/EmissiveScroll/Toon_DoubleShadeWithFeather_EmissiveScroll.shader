@@ -1,4 +1,6 @@
-﻿Shader "UnityChanToonShader/EmissiveScroll/Toon_DoubleShadeWithFeather" {
+﻿//Unitychan Toon Shader ver.2.0
+//v.2.0.4.3
+Shader "UnityChanToonShader/EmissiveScroll/Toon_DoubleShadeWithFeather" {
     Properties {
         [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
         _BaseMap ("BaseMap", 2D) = "white" {}
@@ -64,6 +66,10 @@
         _Rotate_NormalMapForMatCapUV ("Rotate_NormalMapForMatCapUV", Range(-1, 1)) = 0
         [MaterialToggle] _Is_UseTweakMatCapOnShadow ("Is_UseTweakMatCapOnShadow", Float ) = 0
         _TweakMatCapOnShadow ("TweakMatCapOnShadow", Range(0, 1)) = 0
+//MatcapMask
+        _Set_MatcapMask ("Set_MatcapMask", 2D) = "white" {}
+        _Tweak_MatcapMaskLevel ("Tweak_MatcapMaskLevel", Range(-1, 1)) = 0
+//
 //v.2.0.4 Emissive
         _Emissive_Tex ("Emissive_Tex", 2D) = "white" {}
         [HDR]_Emissive_Color ("Emissive_Color", Color) = (0,0,0,1)
@@ -89,9 +95,13 @@
         _OutlineTex ("OutlineTex", 2D) = "white" {}
         //Offset parameter
         _Offset_Z ("Offset_Camera_Z", Float) = 0
+        //v.2.0.4.3 Baked Nrmal Texture for Outline
+        [MaterialToggle] _Is_BakedNormal ("Is_BakedNormal", Float ) = 0
+        _BakedNormal ("Baked Normal for Outline", 2D) = "white" {}
+        //GI Intensity
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
-        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 1)) = 0.5
+        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 5)) = 1
     }
     SubShader {
         Tags {
@@ -113,9 +123,9 @@
             #pragma only_renderers d3d9 d3d11 glcore gles gles3 metal xboxone ps4 switch
             #pragma target 3.0
             //V.2.0.4
-            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO 
+            #pragma multi_compile _IS_OUTLINE_CLIPPING_NO
             #pragma multi_compile _OUTLINE_NML _OUTLINE_POS
-            //アウトライン処理はUTS_Outline_EmissiveScroll.cgincへ.
+            //アウトライン処理はUCTS_Outline_EmissiveScroll.cgincへ.
             #include "UCTS_Outline_EmissiveScroll.cginc"
             ENDCG
         }
@@ -127,8 +137,8 @@
             }
 
             Cull[_CullMode]
-            
-            
+
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -156,8 +166,8 @@
 
             Blend One One
             Cull[_CullMode]
-            
-            
+
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -185,7 +195,7 @@
             }
             Offset 1, 1
             Cull Off
-            
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
