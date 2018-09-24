@@ -21,3 +21,7 @@ Qiita: [@tomori_hikage](https://qiita.com/tomori_hikage)
 ## Original
 
 [unity3d-jp/UnityChanToonShaderVer2_Project](https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project)
+
+## Distribution License
+
+[© Unity Technologies Japan/UCL](http://unity-chan.com/contents/license_jp/)
