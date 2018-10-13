@@ -11,7 +11,7 @@ UnityChanToonShaderVer2_EmissiveScrollはUTS2.0にEmissiveの明滅機能とス�
 
 ## Install
 
-[release](https://github.com/tomori-hikage/UnityChanToonShaderVer2_EmissiveScroll/releases)からUnityChanToonShaderVer2_EmissiveScroll.unitypackageをダウンロードしてプロジェクトにインポートしてください
+[releases](https://github.com/tomori-hikage/UnityChanToonShaderVer2_EmissiveScroll/releases)からUnityChanToonShaderVer2_EmissiveScroll.unitypackageをダウンロードしてプロジェクトにインポートしてください
 
 ## Author
 
