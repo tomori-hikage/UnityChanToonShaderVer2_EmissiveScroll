@@ -16,8 +16,8 @@ UnityChanToonShaderVer2_EmissiveScrollはUTS2.0にEmissiveの明滅機能とス�
 ## Author
 
 Twitter: [@tomori_hikage](https://twitter.com/tomori_hikage)  
-GitHub: [tomori-hikage](https://github.com/tomori-hikage)  
 Qiita: [@tomori_hikage](https://qiita.com/tomori_hikage)
+GitHub: [tomori-hikage](https://github.com/tomori-hikage)  
 
 ## Original
 
