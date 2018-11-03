@@ -1,12 +1,18 @@
 ﻿//UCTS_ShadingGradeMap_EmissiveScroll.cginc
-//v.2.0.4.3
+//Unitychan Toon Shader ver.2.0
+//v.2.0.5
+//nobuyuki@unity3d.com
+//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
+//(C)Unity Technologies Japan/UCL
 //#pragma multi_compile _IS_TRANSCLIPPING_OFF _IS_TRANSCLIPPING_ON
 //#pragma multi_compile _IS_ANGELRING_OFF _IS_ANGELRING_ON
 //#pragma multi_compile _IS_PASS_FWDBASE _IS_PASS_FWDDELTA
 //#include "UCTS_ShadingGradeMap_EmissiveScroll.cginc"
 
-            uniform sampler2D _BaseMap; uniform float4 _BaseMap_ST;
+            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform float4 _BaseColor;
+            //v.2.0.5
+            uniform float4 _Color;
             uniform fixed _Is_LightColor_Base;
             uniform sampler2D _1st_ShadeMap; uniform float4 _1st_ShadeMap_ST;
             uniform float4 _1st_ShadeColor;
@@ -79,6 +85,14 @@
             uniform float _EmissiveScroll_Interval;
 
             uniform float _Unlit_Intensity;
+            //v.2.0.5
+            uniform fixed _Is_Filter_LightColor;
+            //v.2.0.4.4
+            uniform float _StepOffset;
+            uniform fixed _Is_BLD;
+            uniform float _Offset_X_Axis_BLD;
+            uniform float _Offset_Y_Axis_BLD;
+            uniform fixed _Inverse_Z_Axis_BLD;
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
 //
@@ -178,14 +192,14 @@
                 float3 _NormalMap_var = UnpackNormal(tex2D(_NormalMap,TRANSFORM_TEX(Set_UV0, _NormalMap)));
                 float3 normalLocal = _NormalMap_var.rgb;
                 float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
-                float4 _BaseMap_var = tex2D(_BaseMap,TRANSFORM_TEX(Set_UV0, _BaseMap));
+                float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex));
 //v.2.0.4
 #ifdef _IS_TRANSCLIPPING_OFF
 //
 #elif _IS_TRANSCLIPPING_ON
                 float4 _ClippingMask_var = tex2D(_ClippingMask,TRANSFORM_TEX(Set_UV0, _ClippingMask));
-                float Set_BaseMapAlpha = _BaseMap_var.a;
-                float _IsBaseMapAlphaAsClippingMask_var = lerp( _ClippingMask_var.r, Set_BaseMapAlpha, _IsBaseMapAlphaAsClippingMask );
+                float Set_MainTexAlpha = _MainTex_var.a;
+                float _IsBaseMapAlphaAsClippingMask_var = lerp( _ClippingMask_var.r, Set_MainTexAlpha, _IsBaseMapAlphaAsClippingMask );
                 float _Inverse_Clipping_var = lerp( _IsBaseMapAlphaAsClippingMask_var, (1.0 - _IsBaseMapAlphaAsClippingMask_var), _Inverse_Clipping );
                 float Set_Clipping = saturate((_Inverse_Clipping_var+_Clipping_Level));
                 clip(Set_Clipping - 0.5);
@@ -196,19 +210,24 @@
 //v.2.0.4
 #ifdef _IS_PASS_FWDBASE
                 float3 defaultLightDirection = normalize(UNITY_MATRIX_V[2].xyz + UNITY_MATRIX_V[1].xyz);
-                float3 defaultLightColor = saturate(ShadeSH9(half4(0.0, -1.0, 0.0, 1.0)).rgb*_Unlit_Intensity);
+                //v.2.0.4.4
+                float3 defaultLightColor = saturate(max(ShadeSH9(half4(0.0, 0.0, 0.0, 1.0)),ShadeSH9(half4(0.0, -1.0, 0.0, 1.0))).rgb*_Unlit_Intensity);
+                float3 customLightDirection = normalize(mul( unity_ObjectToWorld, float4(((float3(1.0,0.0,0.0)*_Offset_X_Axis_BLD*10)+(float3(0.0,1.0,0.0)*_Offset_Y_Axis_BLD*10)+(float3(0.0,0.0,-1.0)*lerp(-1.0,1.0,_Inverse_Z_Axis_BLD))),0)).xyz);
                 float3 lightDirection = normalize(lerp(defaultLightDirection,_WorldSpaceLightPos0.xyz,any(_WorldSpaceLightPos0.xyz)));
-                float3 lightColor = max(defaultLightColor,_LightColor0.rgb);
+                lightDirection = lerp(lightDirection, customLightDirection, _Is_BLD);
+                float3 lightColor = lerp(max(defaultLightColor,_LightColor0.rgb),max(defaultLightColor,saturate(_LightColor0.rgb)),_Is_Filter_LightColor);
 #elif _IS_PASS_FWDDELTA
                 float3 lightDirection = normalize(lerp(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz - i.posWorld.xyz,_WorldSpaceLightPos0.w));
                 float3 lightColor = max(0, dot(i.normalDir, lightDirection) * _LightColor0.rgb * attenuation );
 #endif
 ////// Lighting:
                 float3 halfDirection = normalize(viewDirection+lightDirection);
+                //v.2.0.5
+                _Color = _BaseColor;
 
 #ifdef _IS_PASS_FWDBASE
                 float3 Set_LightColor = lightColor.rgb;
-                float3 Set_BaseColor = lerp( (_BaseMap_var.rgb*_BaseColor.rgb), ((_BaseMap_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
+                float3 Set_BaseColor = lerp( (_MainTex_var.rgb*_BaseColor.rgb), ((_MainTex_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
                 float4 _1st_ShadeMap_var = tex2D(_1st_ShadeMap,TRANSFORM_TEX(Set_UV0, _1st_ShadeMap));
                 float3 _Is_LightColor_1st_Shade_var = lerp( (_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb), ((_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb)*Set_LightColor), _Is_LightColor_1st_Shade );
                 float4 _ShadingGradeMap_var = tex2D(_ShadingGradeMap,TRANSFORM_TEX(Set_UV0, _ShadingGradeMap));
@@ -280,8 +299,12 @@
                 finalColor = finalColor + saturate(DecodeLightProbe(normalDirection)*_GI_Intensity) + (_Emissive_Tex_var.rgb*_Emissive_Color.rgb*emissiveBlink);//Final Composition
 
 #elif _IS_PASS_FWDDELTA
+                //v.2.0.4.4
+                _1st_ShadeColor_Step = saturate(_1st_ShadeColor_Step - _StepOffset);
+                _2nd_ShadeColor_Step = saturate(_2nd_ShadeColor_Step - _StepOffset);
+                //
                 float3 Set_LightColor = lightColor.rgb;
-                float3 Set_BaseColor = lerp( (_BaseMap_var.rgb*_BaseColor.rgb), ((_BaseMap_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
+                float3 Set_BaseColor = lerp( (_MainTex_var.rgb*_BaseColor.rgb), ((_MainTex_var.rgb*_BaseColor.rgb)*Set_LightColor), _Is_LightColor_Base );
                 float4 _1st_ShadeMap_var = tex2D(_1st_ShadeMap,TRANSFORM_TEX(Set_UV0, _1st_ShadeMap));
                 float3 _Is_LightColor_1st_Shade_var = lerp( (_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb), ((_1st_ShadeMap_var.rgb*_1st_ShadeColor.rgb)*Set_LightColor), _Is_LightColor_1st_Shade );
                 float4 _ShadingGradeMap_var = tex2D(_ShadingGradeMap,TRANSFORM_TEX(Set_UV0, _ShadingGradeMap));

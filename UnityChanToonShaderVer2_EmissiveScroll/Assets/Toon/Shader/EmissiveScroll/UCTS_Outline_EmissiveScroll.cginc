@@ -1,4 +1,9 @@
-﻿// UCTS_Outline_EmissiveScroll.cginc
+﻿//UCTS_Outline_EmissiveScroll.cginc
+//Unitychan Toon Shader ver.2.0
+//v.2.0.5
+//nobuyuki@unity3d.com
+//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
+//(C)Unity Technologies Japan/UCL
 // 2018/08/23 N.Kobayashi (Unity Technologies Japan)
 // カメラオフセット付きアウトライン（BaseColorライトカラー反映修正版）
 // 2017/06/05 PS4対応版
@@ -9,7 +14,9 @@
 //
             uniform float4 _LightColor0;
             uniform float4 _BaseColor;
-            uniform sampler2D _BaseMap; uniform float4 _BaseMap_ST;
+            //v.2.0.5
+            uniform float4 _Color;
+            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             uniform float _Outline_Width;
             uniform float _Farthest_Distance;
             uniform float _Nearest_Distance;
@@ -49,7 +56,7 @@
                 VertexOutput o = (VertexOutput)0;
                 o.uv0 = v.texcoord0;
                 float4 objPos = mul ( unity_ObjectToWorld, float4(0,0,0,1) );
-                float3 lightColor = _LightColor0.rgb;
+                //float3 lightColor = _LightColor0.rgb;
                 float2 Set_UV0 = o.uv0;
                 float4 _Outline_Sampler_var = tex2Dlod(_Outline_Sampler,float4(TRANSFORM_TEX(Set_UV0, _Outline_Sampler),0.0,0));
                 //v.2.0.4.3 baked Normal Texture for Outline
@@ -79,12 +86,15 @@
                 return o;
             }
             float4 frag(VertexOutput i) : SV_Target{
+                //v.2.0.5
+                _Color = _BaseColor;
                 float4 objPos = mul ( unity_ObjectToWorld, float4(0,0,0,1) );
-                float3 lightColor = _LightColor0.rgb;
+                //float3 lightColor = _LightColor0.rgb;
                 float2 Set_UV0 = i.uv0;
-                float4 _BaseMap_var = tex2D(_BaseMap,TRANSFORM_TEX(Set_UV0, _BaseMap));
-                float3 _BaseColorMap_var = (_BaseColor.rgb*_BaseMap_var.rgb);
-                float3 Set_BaseColor = lerp( _BaseColorMap_var, (_BaseColorMap_var*_LightColor0.rgb), _Is_LightColor_Base );
+                float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(Set_UV0, _MainTex));
+                float3 _BaseColorMap_var = (_BaseColor.rgb*_MainTex_var.rgb);
+                //v.2.0.5
+                float3 Set_BaseColor = lerp( _BaseColorMap_var, (_BaseColorMap_var*saturate(_LightColor0.rgb)), _Is_LightColor_Base );
                 //v.2.0.4
                 float3 _Is_BlendBaseColor_var = lerp( _Outline_Color.rgb, (_Outline_Color.rgb*Set_BaseColor*Set_BaseColor), _Is_BlendBaseColor );
                 float3 _OutlineTex_var = tex2D(_OutlineTex,TRANSFORM_TEX(Set_UV0, _OutlineTex));
@@ -94,8 +104,8 @@
                 return fixed4(Set_Outline_Color,1.0);
 #elif _IS_OUTLINE_CLIPPING_YES
                 float4 _ClippingMask_var = tex2D(_ClippingMask,TRANSFORM_TEX(Set_UV0, _ClippingMask));
-                float Set_BaseMapAlpha = _BaseMap_var.a;
-                float _IsBaseMapAlphaAsClippingMask_var = lerp( _ClippingMask_var.r, Set_BaseMapAlpha, _IsBaseMapAlphaAsClippingMask );
+                float Set_MainTexAlpha = _MainTex_var.a;
+                float _IsBaseMapAlphaAsClippingMask_var = lerp( _ClippingMask_var.r, Set_MainTexAlpha, _IsBaseMapAlphaAsClippingMask );
                 float _Inverse_Clipping_var = lerp( _IsBaseMapAlphaAsClippingMask_var, (1.0 - _IsBaseMapAlphaAsClippingMask_var), _Inverse_Clipping );
                 float Set_Clipping = saturate((_Inverse_Clipping_var+_Clipping_Level));
                 clip(Set_Clipping - 0.5);
@@ -103,4 +113,4 @@
                 return Set_Outline_Color;
 #endif
             }
-// UCTS_Outline.cginc ここまで.
+// UCTS_Outline_EmissiveScroll.cginc ここまで.

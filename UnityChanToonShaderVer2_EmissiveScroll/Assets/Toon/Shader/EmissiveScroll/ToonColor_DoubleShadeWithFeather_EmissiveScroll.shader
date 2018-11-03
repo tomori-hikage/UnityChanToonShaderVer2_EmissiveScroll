@@ -1,10 +1,17 @@
 ﻿//Unitychan Toon Shader ver.2.0
-//v.2.0.4.2
+//v.2.0.5
+//nobuyuki@unity3d.com
+//https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project
+//(C)Unity Technologies Japan/UCL
 Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFeather" {
     Properties {
         [Enum(OFF,0,FRONT,1,BACK,2)] _CullMode("Cull Mode", int) = 2  //OFF/FRONT/BACK
-        _BaseMap ("BaseMap", 2D) = "white" {}
+        _MainTex ("BaseMap", 2D) = "white" {}
         _BaseColor ("BaseColor", Color) = (1,1,1,1)
+        //v.2.0.5 : Clipping/TransClipping for SSAO Problems in PostProcessing Stack.
+        //If you want to go back the former SSAO results, comment out the below line.
+        [HideInInspector] _Color ("Color", Color) = (1,1,1,1)
+        //
         [MaterialToggle] _Is_LightColor_Base ("Is_LightColor_Base", Float ) = 1
         _1st_ShadeMap ("1st_ShadeMap", 2D) = "white" {}
         _1st_ShadeColor ("1st_ShadeColor", Color) = (1,1,1,1)
@@ -14,14 +21,17 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
         [MaterialToggle] _Is_LightColor_2nd_Shade ("Is_LightColor_2nd_Shade", Float ) = 1
         _NormalMap ("NormalMap", 2D) = "bump" {}
         [MaterialToggle] _Is_NormalMapToBase ("Is_NormalMapToBase", Float ) = 0
+        //v.2.0.4.4
         [MaterialToggle] _Set_SystemShadowsToBase ("Set_SystemShadowsToBase", Float ) = 1
         _Tweak_SystemShadowsLevel ("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
         _BaseColor_Step ("BaseColor_Step", Range(0, 1)) = 0.6
         _BaseShade_Feather ("Base/Shade_Feather", Range(0.0001, 1)) = 0.0001
-        _Set_1st_ShadePosition ("Set_1st_ShadePosition", 2D) = "white" {}
         _ShadeColor_Step ("ShadeColor_Step", Range(0, 1)) = 0.4
         _1st2nd_Shades_Feather ("1st/2nd_Shades_Feather", Range(0.0001, 1)) = 0.0001
+        _StepOffset ("Step_Offset (ForwardAdd Only)", Range(-0.5, 0.5)) = 0
+        _Set_1st_ShadePosition ("Set_1st_ShadePosition", 2D) = "white" {}
         _Set_2nd_ShadePosition ("Set_2nd_ShadePosition", 2D) = "white" {}
+        //
         _HighColor ("HighColor", Color) = (0,0,0,1)
 //v.2.0.4 HighColor_Tex
         _HighColor_Tex ("HighColor_Tex", 2D) = "white" {}
@@ -86,6 +96,13 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
         _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 5)) = 1
+        //v.2.0.5
+        [MaterialToggle] _Is_Filter_LightColor ("VRChat : Directional Light Intensity Filter", Float ) = 0
+        //Built-in Light Direction
+        [MaterialToggle] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
+        _Offset_X_Axis_BLD (" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05
+        _Offset_Y_Axis_BLD (" Offset Y-Axis (Built-in Light Direction)", Range(-1, 1)) = 0.09
+        [MaterialToggle] _Inverse_Z_Axis_BLD (" Inverse Z-Axis (Built-in Light Direction)", Float ) = 1
     }
     SubShader {
         Tags {
