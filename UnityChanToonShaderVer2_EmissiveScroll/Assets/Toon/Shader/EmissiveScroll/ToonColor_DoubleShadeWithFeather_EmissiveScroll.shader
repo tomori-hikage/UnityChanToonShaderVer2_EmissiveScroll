@@ -14,9 +14,13 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
         //
         [MaterialToggle] _Is_LightColor_Base ("Is_LightColor_Base", Float ) = 1
         _1st_ShadeMap ("1st_ShadeMap", 2D) = "white" {}
+        //v.2.0.5
+        [MaterialToggle] _Use_BaseAs1st ("Use BaseMap as 1st_ShadeMap", Float ) = 0
         _1st_ShadeColor ("1st_ShadeColor", Color) = (1,1,1,1)
         [MaterialToggle] _Is_LightColor_1st_Shade ("Is_LightColor_1st_Shade", Float ) = 1
         _2nd_ShadeMap ("2nd_ShadeMap", 2D) = "white" {}
+        //v.2.0.5
+        [MaterialToggle] _Use_1stAs2nd ("Use 1st_ShadeMap as 2nd_ShadeMap", Float ) = 0
         _2nd_ShadeColor ("2nd_ShadeColor", Color) = (1,1,1,1)
         [MaterialToggle] _Is_LightColor_2nd_Shade ("Is_LightColor_2nd_Shade", Float ) = 1
         _NormalMap ("NormalMap", 2D) = "bump" {}
@@ -24,11 +28,14 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
         //v.2.0.4.4
         [MaterialToggle] _Set_SystemShadowsToBase ("Set_SystemShadowsToBase", Float ) = 1
         _Tweak_SystemShadowsLevel ("Tweak_SystemShadowsLevel", Range(-0.5, 0.5)) = 0
-        _BaseColor_Step ("BaseColor_Step", Range(0, 1)) = 0.6
+        _BaseColor_Step ("BaseColor_Step", Range(0, 1)) = 0.5
         _BaseShade_Feather ("Base/Shade_Feather", Range(0.0001, 1)) = 0.0001
-        _ShadeColor_Step ("ShadeColor_Step", Range(0, 1)) = 0.4
+        _ShadeColor_Step ("ShadeColor_Step", Range(0, 1)) = 0
         _1st2nd_Shades_Feather ("1st/2nd_Shades_Feather", Range(0.0001, 1)) = 0.0001
+        //v.2.0.5
         _StepOffset ("Step_Offset (ForwardAdd Only)", Range(-0.5, 0.5)) = 0
+        [MaterialToggle] _Is_Filter_HiCutPointLightColor ("PointLights HiCut_Filter (ForwardAdd Only)", Float ) = 1
+        //
         _Set_1st_ShadePosition ("Set_1st_ShadePosition", 2D) = "white" {}
         _Set_2nd_ShadePosition ("Set_2nd_ShadePosition", 2D) = "white" {}
         //
@@ -79,6 +86,8 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
 //MatcapMask
         _Set_MatcapMask ("Set_MatcapMask", 2D) = "white" {}
         _Tweak_MatcapMaskLevel ("Tweak_MatcapMaskLevel", Range(-1, 1)) = 0
+        //v.2.0.5
+         [MaterialToggle] _Is_Ortho ("Orthographic Projection for MatCap", Float ) = 0
 //
 //v.2.0.4 Emissive
         _Emissive_Tex ("Emissive_Tex", 2D) = "white" {}
@@ -95,9 +104,11 @@ Shader "UnityChanToonShader/EmissiveScroll/NoOutline/ToonColor_DoubleShadeWithFe
 //GI
         _GI_Intensity ("GI_Intensity", Range(0, 1)) = 0
         //For VR Chat under No effective light objects
-        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 5)) = 1
-        //v.2.0.5
-        [MaterialToggle] _Is_Filter_LightColor ("VRChat : Directional Light Intensity Filter", Float ) = 0
+        _Unlit_Intensity ("Unlit_Intensity", Range(0.001, 2)) = 1
+        //v.2.0.5 
+        [MaterialToggle] _Is_Filter_LightColor ("VRChat : SceneLights HiCut_Filter", Float ) = 0
+        //This advanced option compensates the color of point lights when SceneLights HiCut_Filter is checked.
+        [HideInInspector] _ColorBoost (" *Advanced Option : Compensation Boost", Range(1, 5)) = 1
         //Built-in Light Direction
         [MaterialToggle] _Is_BLD ("Advanced : Activate Built-in Light Direction", Float ) = 0
         _Offset_X_Axis_BLD (" Offset X-Axis (Built-in Light Direction)", Range(-1, 1)) = -0.05

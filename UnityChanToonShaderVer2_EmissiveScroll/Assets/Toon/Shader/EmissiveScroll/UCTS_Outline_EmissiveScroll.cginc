@@ -9,7 +9,7 @@
 // 2017/06/05 PS4対応版
 // Ver.2.0.4.3
 // 2018/02/05 Outline Tex対応版
-// #pragma multi_compile _IS_OUTLINE_CLIPPING_NO _IS_OUTLINE_CLIPPING_YES
+// #pragma multi_compile _IS_OUTLINE_CLIPPING_NO _IS_OUTLINE_CLIPPING_YES 
 // _IS_OUTLINE_CLIPPING_YESは、Clippigマスクを使用するシェーダーでのみ使用できる. OutlineのブレンドモードにBlend SrcAlpha OneMinusSrcAlphaを追加すること.
 //
             uniform float4 _LightColor0;
@@ -76,7 +76,7 @@
                 _Offset_Z = _Offset_Z * -0.01;
 //v2.0.4
 #ifdef _OUTLINE_NML
-                //v.2.0.4.3 baked Normal Texture for Outline
+                //v.2.0.4.3 baked Normal Texture for Outline                
                 o.pos = UnityObjectToClipPos(lerp(float4(v.vertex.xyz + v.normal*Set_Outline_Width,1), float4(v.vertex.xyz + _BakedNormalDir*Set_Outline_Width,1),_Is_BakedNormal));
 #elif _OUTLINE_POS
                 Set_Outline_Width = Set_Outline_Width*2;
