@@ -1,7 +1,7 @@
 [![license](https://img.shields.io/badge/license-UCL-green.svg?style=flat-square)](http://unity-chan.com/contents/license_jp/)
 [![release](https://img.shields.io/github/release/tomori-hikage/UnityChanToonShaderVer2_EmissiveScroll.svg?style=flat-square)](https://github.com/tomori-hikage/UnityChanToonShaderVer2_EmissiveScroll/releases)
-[![GitHub](https://img.shields.io/github/followers/tomori-hikage.svg?label=GitHub&style=social)](https://github.com/tomori-hikage)
-[![Twitter](https://img.shields.io/twitter/follow/tomori_hikage.svg?label=Twitter&style=social)](https://twitter.com/tomori_hikage)
+[![GitHub](https://img.shields.io/github/followers/tomori-hikage.svg?label=@tomori-hikage&style=social)](https://github.com/tomori-hikage)
+[![Twitter](https://img.shields.io/twitter/follow/tomori_hikage.svg?label=@tomori_hikage&style=social)](https://twitter.com/tomori_hikage)
 
 # UnityChanToonShaderVer2_EmissiveScroll
 
